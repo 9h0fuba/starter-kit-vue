@@ -19,7 +19,7 @@ interface Props {
 }
 interface Emit {
   (e: 'update:isDialogVisible', value: boolean): void
-  (e: 'update:rolePermissions', value: Roles): void
+  (e: 'update:role-permissions', value: Roles): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -155,7 +155,7 @@ const onSubmit = () => {
     permissions: permissions.value,
   }
 
-  emit('update:rolePermissions', rolePermissions)
+  emit('update:role-permissions', rolePermissions)
   emit('update:isDialogVisible', false)
   isSelectAll.value = false
   refPermissionForm.value?.reset()

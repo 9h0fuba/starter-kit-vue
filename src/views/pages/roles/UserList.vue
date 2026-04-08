@@ -116,6 +116,7 @@ const deleteUser = async (id: number) => {
 </script>
 
 <template>
+  <pre>{{ selectedRows }}</pre>
   <section>
     <VCard>
       <VCardText class="d-flex flex-wrap gap-4">
