@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import RoleCards from '@/views/pages/roles/RoleCards.vue'
-import UserList from '@/views/pages/roles/UserList.vue'
+
 </script>
 
 <template>

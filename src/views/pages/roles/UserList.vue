@@ -113,9 +113,40 @@ const deleteUser = async (id: number) => {
   // TODO: Make this async
   fetchUsers()
 }
+
+const dialogConfig = reactive({
+  visible: false,
+  id: null as number | null,
+  title: '',
+  action: null as (() => void) | null // Menyimpan fungsi yang akan dijalankan
+})
+
+// Satu fungsi untuk buka segala jenis dialog
+const openConfirm = (id: number, title: string, callback: () => void) => {
+  dialogConfig.id = id
+  dialogConfig.title = title
+  dialogConfig.action = callback
+  dialogConfig.visible = true
+}
+
+const handleConfirm = (isConfirmed: boolean) => {
+  if (isConfirmed && dialogConfig.action) {
+    dialogConfig.action() // Jalankan fungsi yang tadi disimpan
+  }
+}
 </script>
 
 <template>
+               <ConfirmDialog
+  :is-dialog-visible="dialogConfig.visible"
+  confirmation-question="Apakah Anda yakin ingin menghapus user ini?"
+  confirm-title="Terhapus!"
+  confirm-msg="User berhasil dihapus dari sistem."
+  cancel-title="Dibatalkan"
+  cancel-msg="User batal dihapus."
+  @confirm="handleConfirm"
+  @update:is-dialog-visible="dialogConfig.visible = $event"
+/> 
   <pre>{{ selectedRows }}</pre>
   <section>
     <VCard>
@@ -246,13 +277,15 @@ const deleteUser = async (id: number) => {
           </VChip>
         </template>
 
+        
+        
         <!-- Actions -->
         <template #item.actions="{ item }">
-          <IconBtn @click="deleteUser(item.id)">
+          <IconBtn @click="openConfirm(item.id, item.fullName, () => deleteUser(item.id))">
             <VIcon icon="tabler-trash" />
           </IconBtn>
 
-          <IconBtn>
+          <IconBtn >
             <VIcon icon="tabler-eye" />
           </IconBtn>
 
