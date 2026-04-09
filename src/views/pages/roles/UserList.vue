@@ -118,7 +118,7 @@ const dialogConfig = reactive({
   visible: false,
   id: null as number | null,
   title: '',
-  action: null as (() => void) | null // Menyimpan fungsi yang akan dijalankan
+  action: null as (() => void) | null, // Menyimpan fungsi yang akan dijalankan
 })
 
 // Satu fungsi untuk buka segala jenis dialog
@@ -130,23 +130,22 @@ const openConfirm = (id: number, title: string, callback: () => void) => {
 }
 
 const handleConfirm = (isConfirmed: boolean) => {
-  if (isConfirmed && dialogConfig.action) {
-    dialogConfig.action() // Jalankan fungsi yang tadi disimpan
-  }
+  if (isConfirmed && dialogConfig.action)
+    dialogConfig.action()
 }
 </script>
 
 <template>
-               <ConfirmDialog
-  :is-dialog-visible="dialogConfig.visible"
-  confirmation-question="Apakah Anda yakin ingin menghapus user ini?"
-  confirm-title="Terhapus!"
-  confirm-msg="User berhasil dihapus dari sistem."
-  cancel-title="Dibatalkan"
-  cancel-msg="User batal dihapus."
-  @confirm="handleConfirm"
-  @update:is-dialog-visible="dialogConfig.visible = $event"
-/> 
+  <ConfirmDialog
+    :is-dialog-visible="dialogConfig.visible"
+    confirmation-question="Apakah Anda yakin ingin menghapus user ini?"
+    confirm-title="Terhapus!"
+    confirm-msg="User berhasil dihapus dari sistem."
+    cancel-title="Dibatalkan"
+    cancel-msg="User batal dihapus."
+    @confirm="handleConfirm"
+    @update:is-dialog-visible="dialogConfig.visible = $event"
+  />
   <pre>{{ selectedRows }}</pre>
   <section>
     <VCard>
@@ -276,16 +275,13 @@ const handleConfirm = (isConfirmed: boolean) => {
             {{ item.status }}
           </VChip>
         </template>
-
-        
-        
         <!-- Actions -->
         <template #item.actions="{ item }">
           <IconBtn @click="openConfirm(item.id, item.fullName, () => deleteUser(item.id))">
             <VIcon icon="tabler-trash" />
           </IconBtn>
 
-          <IconBtn >
+          <IconBtn>
             <VIcon icon="tabler-eye" />
           </IconBtn>
 
@@ -297,12 +293,10 @@ const handleConfirm = (isConfirmed: boolean) => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-                <VListItem>
-                  <!-- <VListItem :to="{ name: 'apps-user-view-id', params: { id: item.id } }"> -->
+                <VListItem :to="{ name: 'apps-users-id', params: { id: item.id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
-
                   <VListItemTitle>View</VListItemTitle>
                 </VListItem>
 
