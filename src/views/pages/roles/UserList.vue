@@ -85,18 +85,18 @@ const resolveUserStatusVariant = (stat: string) => {
   return 'primary'
 }
 
-// const isAddNewUserDrawerVisible = ref(false)
+const isAddNewUserDrawerVisible = ref(false)
 
 // 👉 Add new user
-// const addNewUser = async (userData: UserProperties) => {
-//   await $api('/apps/users', {
-//     method: 'POST',
-//     body: userData,
-//   })
+const addNewUser = async (userData: UserProperties) => {
+  await $api('/apps/users', {
+    method: 'POST',
+    body: userData,
+  })
 
-//   // refetch User
-//   fetchUsers()
-// }
+  // refetch User
+  fetchUsers()
+}
 
 // 👉 Delete user
 const deleteUser = async (id: number) => {
@@ -132,6 +132,37 @@ const openConfirm = (id: number, title: string, callback: () => void) => {
 const handleConfirm = (isConfirmed: boolean) => {
   if (isConfirmed && dialogConfig.action)
     dialogConfig.action()
+}
+
+// edit user
+const isEditUserDialogVisible = ref(false)
+const userToEdit = ref<UserProperties | undefined>(undefined)
+
+const openEditDialog = (user: UserProperties) => {
+  userToEdit.value = user
+  isEditUserDialogVisible.value = true
+}
+
+const handleEditSubmit = async (updatedData: UserProperties) => {
+  try {
+    // Memanggil Fake API yang baru kita buat
+    await $api(`/apps/users/${updatedData.id}`, {
+      method: 'PUT',
+      body: updatedData,
+    })
+
+    // Tutup dialog
+    isEditUserDialogVisible.value = false
+
+    // Refresh tabel (panggil fungsi fetch data Anda)
+    fetchUsers()
+
+    // Optional: Tambahkan notifikasi sukses
+    console.log('Update Success')
+  }
+  catch (error) {
+    console.error('Update Failed:', error)
+  }
 }
 </script>
 
@@ -191,6 +222,16 @@ const handleConfirm = (isConfirmed: boolean) => {
       </VCardText>
 
       <VDivider />
+
+      <VCardText>
+        <!-- 👉 Add user button -->
+        <VBtn
+          prepend-icon="tabler-plus"
+          @click="isAddNewUserDrawerVisible = true"
+        >
+          Add New User
+        </VBtn>
+      </VCardText>
 
       <!-- SECTION datatable -->
       <VDataTableServer
@@ -281,8 +322,12 @@ const handleConfirm = (isConfirmed: boolean) => {
             <VIcon icon="tabler-trash" />
           </IconBtn>
 
-          <IconBtn>
+          <IconBtn :to="{ name: 'apps-users-id', params: { id: item.id } }">
             <VIcon icon="tabler-eye" />
+          </IconBtn>
+
+          <IconBtn @click="openEditDialog(item)">
+            <VIcon icon="tabler-pencil" />
           </IconBtn>
 
           <VBtn
@@ -330,12 +375,19 @@ const handleConfirm = (isConfirmed: boolean) => {
     </VCard>
 
     <!-- 👉 Add New User -->
-    <!--
-      <AddNewUserDrawer
+
+    <AddNewUserDrawer
       v-model:is-drawer-open="isAddNewUserDrawerVisible"
       @user-data="addNewUser"
-      />
-    -->
+    />
+
+    <!-- USER DIT DIALOG -->
+    <UserInfoEditDialog
+      v-if="isEditUserDialogVisible"
+      v-model:is-dialog-visible="isEditUserDialogVisible"
+      :user-data="userToEdit"
+      @submit="handleEditSubmit"
+    />
   </section>
 </template>
 
