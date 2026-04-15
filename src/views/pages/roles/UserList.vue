@@ -44,6 +44,17 @@ const { data: usersData, execute: fetchUsers } = await useApi<any>(createUrl('/a
   },
 }))
 
+const {data: data, execute: fetchMasterData} = await useApi<any>(createUrl('/apps/budgets/master-options'))
+
+console.log('Categories:', data.value.categories)
+
+// Mengambil list akun
+console.log('Accounts:', data.value.accounts)
+
+const {data: dataBudget, execute: fetchBudgets} = await useApi<any>(createUrl('/apps/budgets'))
+
+console.log('Budgets:', dataBudget.value.budgets)
+
 const users = computed((): UserProperties[] => usersData.value.users)
 const totalUsers = computed(() => usersData.value.totalUsers)
 

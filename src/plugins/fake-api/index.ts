@@ -10,6 +10,7 @@ import { setupWorker } from 'msw/browser'
 // import { handlerAppsInvoice } from '@db/apps/invoice/index'
 // import { handlerAppsKanban } from '@db/apps/kanban/index'
 // import { handlerAppLogistics } from '@db/apps/logistics/index'
+import { handlerAppsBudgets } from '@db/apps/budget/index'
 import { handlerAppsPermission } from '@db/apps/permission/index'
 import { handlerAppsUsers } from '@db/apps/users/index'
 
@@ -26,7 +27,7 @@ const worker = setupWorker(
   // ...handlerAppsAcademy,
   // ...handlerAppsInvoice,
   ...handlerAppsUsers,
-
+...handlerAppsBudgets,
   // ...handlerAppsEmail,
   // ...handlerAppsCalendar,
   // ...handlerAppsChat,
