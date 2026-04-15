@@ -9,6 +9,10 @@ export default [
     icon: { icon: 'tabler-settings-cog' }, // Anda bisa ganti iconnya
     children: [
       {
+        title: 'User',
+        to: { name: 'apps-users-id', params: { id: 21 } }, // Pastikan nama rute sesuai dengan file di src/pages
+      },
+      {
         title: 'Roles',
         to: { name: 'apps-roles' }, // Pastikan nama rute sesuai dengan file di src/pages
       },

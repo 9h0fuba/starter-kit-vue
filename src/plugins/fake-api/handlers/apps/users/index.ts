@@ -163,4 +163,33 @@ export const handlerAppsUsers = [
       { status: 201 },
     )
   }),
+
+  // 👉 Edit User
+  http.put('/api/apps/users/:id', async ({ request, params }) => {
+    const { id } = params
+    const updatedUser = await request.json() as any
+
+    // 1. Cari index user di "database" array kita
+    const userIndex = db.users.findIndex(u => u.id === Number(id))
+
+    if (userIndex !== -1) {
+      // 2. Update data: Gabungkan data lama dengan data baru
+      // Ini seperti perintah UPDATE di SQL
+      db.users[userIndex] = {
+        ...db.users[userIndex],
+        ...updatedUser,
+      }
+
+      return HttpResponse.json(
+        db.users[userIndex],
+        { status: 200 },
+      )
+    }
+
+    // 3. Jika ID tidak ditemukan (404 Not Found)
+    return HttpResponse.json(
+      { message: 'User not found' },
+      { status: 404 },
+    )
+  }),
 ]

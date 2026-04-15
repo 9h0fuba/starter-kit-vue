@@ -1,29 +1,13 @@
 <script setup lang="ts">
-interface UserData {
-  id: number | null
-  fullName: string
-  company: string
-  username: string
-  role: string
-  country: string
-  contact: string | undefined
-  email: string | undefined
-  currentPlan: string
-  status: string | undefined
-  avatar: string
-  taskDone: number | null
-  projectDone: number | null
-  taxId: string
-  language: string
-}
+import type { UserProperties } from '@db/apps/users/types'
 
 interface Props {
-  userData?: UserData
+  userData?: UserProperties
   isDialogVisible: boolean
 }
 
 interface Emit {
-  (e: 'submit', value: UserData): void
+  (e: 'submit', value: UserProperties): void
   (e: 'update:isDialogVisible', val: boolean): void
 }
 
@@ -40,25 +24,23 @@ const props = withDefaults(defineProps<Props>(), {
     currentPlan: '',
     status: '',
     avatar: '',
-    taskDone: null,
-    projectDone: null,
-    taxId: '',
-    language: '',
+    billing: '',
   }),
 })
 
 const emit = defineEmits<Emit>()
 
-const userData = ref<UserData>(structuredClone(toRaw(props.userData)))
+const userData = ref<UserProperties>(structuredClone(toRaw(props.userData)))
 const isUseAsBillingAddress = ref(false)
 
 watch(() => props, () => {
   userData.value = structuredClone(toRaw(props.userData))
 })
 
+const isConfirmVisible = ref(false)
+
 const onFormSubmit = () => {
-  emit('update:isDialogVisible', false)
-  emit('submit', userData.value)
+  isConfirmVisible.value = true
 }
 
 const onFormReset = () => {
@@ -69,6 +51,39 @@ const onFormReset = () => {
 
 const dialogModelValueUpdate = (val: boolean) => {
   emit('update:isDialogVisible', val)
+}
+
+// 👉 Computed untuk memisahkan/menggabungkan Nama
+const firstName = computed({
+  get: () => userData.value.fullName.split(' ')[0] || '',
+  set: val => {
+    const names = userData.value.fullName.split(' ')
+
+    names[0] = val
+    userData.value.fullName = names.join(' ').trim()
+  },
+})
+
+const lastName = computed({
+  get: () => userData.value.fullName.split(' ').slice(1).join(' ') || '',
+  set: val => {
+    const names = userData.value.fullName.split(' ')
+    const fName = names[0] || ''
+
+    userData.value.fullName = `${fName} ${val}`.trim()
+  },
+})
+
+// Fungsi jika user yakin (Confirm)
+const onConfirmSubmit = () => {
+  isConfirmVisible.value = false
+
+  // Gabungkan nama seperti logika senior sebelumnya
+  userData.value.fullName = `${firstName.value} ${lastName.value}`.trim()
+
+  // Kirim data ke Parent
+  emit('update:isDialogVisible', false)
+  emit('submit', userData.value)
 }
 </script>
 
@@ -103,7 +118,7 @@ const dialogModelValueUpdate = (val: boolean) => {
               md="6"
             >
               <AppTextField
-                v-model="userData.fullName.split(' ')[0]"
+                v-model="firstName"
                 label="First Name"
                 placeholder="John"
               />
@@ -115,7 +130,7 @@ const dialogModelValueUpdate = (val: boolean) => {
               md="6"
             >
               <AppTextField
-                v-model="userData.fullName.split(' ')[1]"
+                v-model="lastName"
                 label="Last Name"
                 placeholder="Doe"
               />
@@ -154,19 +169,6 @@ const dialogModelValueUpdate = (val: boolean) => {
                 :items="['Active', 'Inactive', 'Pending']"
               />
             </VCol>
-
-            <!-- 👉 Tax Id -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppTextField
-                v-model="userData.taxId"
-                label="Tax ID"
-                placeholder="123456789"
-              />
-            </VCol>
-
             <!-- 👉 Contact -->
             <VCol
               cols="12"
@@ -176,22 +178,6 @@ const dialogModelValueUpdate = (val: boolean) => {
                 v-model="userData.contact"
                 label="Phone Number"
                 placeholder="+1 9876543210"
-              />
-            </VCol>
-
-            <!-- 👉 Language -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppSelect
-                v-model="userData.language"
-                closable-chips
-                chips
-                multiple
-                label="Language"
-                placeholder="English"
-                :items="['English', 'Spanish', 'French']"
               />
             </VCol>
 
@@ -223,6 +209,7 @@ const dialogModelValueUpdate = (val: boolean) => {
               class="d-flex flex-wrap justify-center gap-4"
             >
               <VBtn type="submit">
+                >
                 Submit
               </VBtn>
 
@@ -237,6 +224,37 @@ const dialogModelValueUpdate = (val: boolean) => {
           </VRow>
         </VForm>
       </VCardText>
+    </VCard>
+  </VDialog>
+
+  <VDialog
+    v-model="isConfirmVisible"
+    max-width="400"
+  >
+    <VCard>
+      <VCardTitle class="text-h6">
+        Konfirmasi Perubahan
+      </VCardTitle>
+      <VCardText>
+        Apakah Anda yakin data yang Anda masukkan sudah benar?
+        Perubahan ini akan dicatat dalam audit sistem.
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="secondary"
+          variant="tonal"
+          @click="isConfirmVisible = false"
+        >
+          Batal
+        </VBtn>
+        <VBtn
+          color="primary"
+          @click="onConfirmSubmit"
+        >
+          Ya, Simpan
+        </VBtn>
+      </VCardActions>
     </VCard>
   </VDialog>
 </template>
