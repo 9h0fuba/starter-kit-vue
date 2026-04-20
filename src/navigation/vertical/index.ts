@@ -23,4 +23,10 @@ export default [
     to: { name: 'second-page' },
     icon: { icon: 'tabler-file' },
   },
+  {
+    title: 'Attendence',
+    to: { name: 'apps-attendence' },
+    icon: { icon: 'tabler-file' },
+  },
+
 ]
